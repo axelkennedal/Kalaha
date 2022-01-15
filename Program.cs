@@ -8,7 +8,14 @@ namespace Kalaha
         {
             var b = new KalahaBoard();
             b.PrintBoard();
-            b.PlayTurn(0, Player.Player1);
+
+            // main game loop
+            var currentPlayer = Player.Player1;
+            var playable = b.PlayableSlots(currentPlayer);
+            if (playable.Count > 0)
+            {
+                b.PlayTurn(playable.First(), Player.Player1);
+            }
             b.PrintBoard();
         }
 
@@ -20,8 +27,9 @@ namespace Kalaha
 
         public class KalahaBoard
         {
-            // counter clockwise; 0 = bottom left, 6 = right store, 7 = top right, 13 = left store
+            // counter clockwise
             private int[] slots;
+            private const int bottomLeft = 0, bottomRight = 5, rightStore = 6, topRight = 7, topLeft = 12, leftStore = 13;
 
             public KalahaBoard()
             {
@@ -38,8 +46,34 @@ namespace Kalaha
                 Console.Write(board);
             }
 
+            public List<int> PlayableSlots(Player player)
+            {
+                int startPos, endPos;
+                if (player == Player.Player1)
+                {
+                    startPos = bottomLeft; endPos = bottomRight;
+                }
+                else
+                {
+                    startPos = topRight; endPos = topLeft;
+                }
+
+                var playableSlots = new List<int>();
+
+                for (int currentPos = startPos; currentPos <= endPos; currentPos++)
+                {
+                    if (slots[currentPos] > 0)
+                    {
+                        playableSlots.Add(currentPos);
+                    }
+                }
+                return playableSlots;
+            }
+
             public int PlayTurn(int fromSlot, Player player)
             {
+                if (slots[fromSlot] == 0) return 0;
+
                 int marblesInHand = slots[fromSlot];
                 slots[fromSlot] = 0;
 
